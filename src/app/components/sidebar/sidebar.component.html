@@ -1,0 +1,112 @@
+<aside
+  class="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 z-20 overflow-hidden"
+  [class.w-64]="isOpen"
+  [class.w-0]="!isOpen"
+>
+  <nav class="p-4 space-y-2">
+    <div>
+      <button
+        type="button"
+        class="flex items-center justify-between w-full px-4 py-3 text-left rounded-lg hover:bg-white/50 dark:hover:bg-gray-800/50 transition-colors group"
+        (click)="toggleItem('simulator')"
+      >
+        <div class="flex items-center gap-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-5 h-5 text-teal-600 dark:text-teal-400"
+          >
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+          </svg>
+          <span class="font-medium text-gray-800 dark:text-gray-200">Simulador</span>
+        </div>
+        <ng-container *ngIf="isExpanded('simulator'); else collapsed">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4 text-gray-600 dark:text-gray-400"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </ng-container>
+        <ng-template #collapsed>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4 text-gray-600 dark:text-gray-400"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </ng-template>
+      </button>
+
+      <div *ngIf="isExpanded('simulator')" class="ml-4 mt-1 space-y-1">
+        <button
+          type="button"
+          class="flex items-center w-full px-4 py-2 text-left rounded-lg"
+          [routerLink]="['/simulador-apostas-passada']"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+          #simulatorLink="routerLinkActive"
+          [ngClass]="
+            simulatorLink.isActive
+              ? 'flex items-center w-full px-4 py-2 text-left rounded-lg bg-teal-100/50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200/50 dark:border-teal-700/50'
+              : 'flex items-center w-full px-4 py-2 text-left rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 text-gray-700 dark:text-gray-300'
+          "
+        >
+          <span class="text-sm">Apostas Passadas</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <button
+        type="button"
+        class="flex items-center justify-between w-full px-4 py-3 text-left rounded-lg transition-colors group"
+        [routerLink]="['/favoritos']"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        #favoritesLink="routerLinkActive"
+        [ngClass]="
+          favoritesLink.isActive
+            ? 'flex items-center justify-between w-full px-4 py-3 text-left rounded-lg transition-colors group bg-teal-100/50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200/50 dark:border-teal-700/50'
+            : 'flex items-center justify-between w-full px-4 py-3 text-left rounded-lg transition-colors group hover:bg-white/50 dark:hover:bg-gray-800/50'
+        "
+      >
+        <div class="flex items-center gap-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-5 h-5 text-orange-500 dark:text-orange-400"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+          <span class="font-medium text-gray-800 dark:text-gray-200">Apostas Favoritas</span>
+        </div>
+      </button>
+    </div>
+  </nav>
+</aside>

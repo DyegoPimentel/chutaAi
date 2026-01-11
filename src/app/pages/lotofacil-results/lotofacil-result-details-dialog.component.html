@@ -1,0 +1,148 @@
+<h2 mat-dialog-title class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+  Detalhes da aposta
+</h2>
+
+<mat-dialog-content class="space-y-5 text-sm text-gray-700 dark:text-gray-200">
+  <div class="grid gap-3 sm:grid-cols-2">
+    <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Concurso</p>
+      <p class="text-sm text-gray-900 dark:text-gray-100">
+        {{ data.result.draw.drawNumber }}
+      </p>
+    </div>
+    <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Data</p>
+      <p class="text-sm text-gray-900 dark:text-gray-100">
+        {{ data.result.draw.drawDate }}
+      </p>
+    </div>
+    <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Status</p>
+      <p class="text-sm text-gray-900 dark:text-gray-100">
+        {{ getStatusLabel(data.result.status) }}
+      </p>
+    </div>
+    <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Prêmio</p>
+      <p class="text-sm text-gray-900 dark:text-gray-100">
+        {{ data.result.prize > 0 ? formatCurrency(data.result.prize) : '-' }}
+      </p>
+    </div>
+    <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Acertos</p>
+      <p class="text-sm text-gray-900 dark:text-gray-100">
+        {{ data.result.matches }}
+      </p>
+    </div>
+  </div>
+
+  <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Desdobramento</p>
+    <p class="text-sm text-gray-700 dark:text-gray-200">
+      Aposta com {{ data.userNumbers.length }} números gera {{ data.result.totalCombinations }} combinações de 15.
+    </p>
+    <div *ngIf="data.result.breakdown.length > 0; else noBreakdown" class="mt-2 space-y-1 text-xs">
+      <div
+        *ngFor="let entry of data.result.breakdown"
+        class="flex flex-wrap items-center justify-between gap-2 text-gray-700 dark:text-gray-200"
+      >
+        <span>{{ entry.hits }} acertos: {{ entry.combinations }}x</span>
+        <span class="font-normal text-gray-900 dark:text-gray-100">
+          {{ formatCurrency(entry.prizePerHit) }} = {{ formatCurrency(entry.totalPrize) }}
+        </span>
+      </div>
+    </div>
+    <ng-template #noBreakdown>
+      <p class="mt-2 text-xs text-gray-600 dark:text-gray-300">Sem combinações premiadas.</p>
+    </ng-template>
+  </div>
+
+  <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Seus números</p>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-full p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800/60"
+        aria-label="Copiar seus números"
+        title="Copiar seus números"
+        (click)="copyNumbers(data.userNumbers, 'Seus números')"
+      >
+        <mat-icon class="!text-base">content_copy</mat-icon>
+      </button>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <span
+        *ngFor="let num of data.userNumbers"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold"
+        [ngClass]="
+          isMatched(num)
+            ? 'bg-gradient-to-br from-teal-500 to-cyan-600 text-white'
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+        "
+      >
+        {{ num }}
+      </span>
+    </div>
+  </div>
+
+  <div class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Números sorteados</p>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-full p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800/60"
+        aria-label="Copiar números sorteados"
+        title="Copiar números sorteados"
+        (click)="copyNumbers(data.result.draw.drawnNumbers, 'Números sorteados')"
+      >
+        <mat-icon class="!text-base">content_copy</mat-icon>
+      </button>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <span
+        *ngFor="let num of data.result.draw.drawnNumbers"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold"
+        [ngClass]="
+          isMatched(num)
+            ? 'bg-gradient-to-br from-teal-500 to-cyan-600 text-white'
+            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+        "
+      >
+        {{ num }}
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="data.result.matchedNumbers.length > 0" class="rounded-lg bg-gray-50/80 dark:bg-gray-800/60 p-3">
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Números acertados</p>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-full p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800/60"
+        aria-label="Copiar números acertados"
+        title="Copiar números acertados"
+        (click)="copyNumbers(data.result.matchedNumbers, 'Números acertados')"
+      >
+        <mat-icon class="!text-base">content_copy</mat-icon>
+      </button>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <span
+        *ngFor="let num of data.result.matchedNumbers"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold bg-gradient-to-br from-teal-500 to-cyan-600 text-white"
+      >
+        {{ num }}
+      </span>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button
+    type="button"
+    mat-dialog-close
+    class="btn-base px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
+  >
+    Fechar
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,117 @@
+<div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+  <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+    Simulador de Apostas Passadas
+  </h2>
+
+  <form class="space-y-6" (submit)="handleSubmit($event)">
+    <div class="space-y-2">
+      <label for="bet-count" class="label-base text-gray-700 dark:text-gray-300">
+        Total de números da aposta
+      </label>
+      <div class="flex flex-row flex-wrap items-center gap-3">
+        <select
+          id="bet-count"
+          class="select-base bg-sky-50 dark:bg-gray-900/80"
+          [value]="selectedBetCount"
+          (change)="handleBetCountChange($event)"
+        >
+          <option *ngFor="let count of betCountOptions" [value]="count">{{ count }} números</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <label for="numbers-input" class="label-base text-gray-700 dark:text-gray-300">
+        Digite seus números ({{ selectedBetCount }} números entre 1 e 25)
+      </label>
+      <input
+        id="numbers-input"
+        type="text"
+        placeholder="Ex: 1, 2, 3, 4, 5, 7, 9, 11, 13, 15, 17, 18, 20, 22, 23"
+        class="input-base bg-sky-50 dark:bg-gray-900/80 backdrop-blur-sm"
+        [value]="inputValue"
+        (input)="handleInputChange($event)"
+      />
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Números selecionados: {{ selectedNumbers.length }}/{{ selectedBetCount }}
+      </p>
+    </div>
+
+    <div>
+      <label class="label-base text-gray-700 dark:text-gray-300 mb-3 block">
+        Ou selecione clicando nos números abaixo
+      </label>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          *ngFor="let num of numbers"
+          class="h-12 w-12 rounded-full font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          [class]="
+            selectedNumbers.includes(num)
+              ? 'h-12 w-12 rounded-full font-semibold transition-all bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-lg scale-105'
+              : 'h-12 w-12 rounded-full font-semibold transition-all bg-sky-50 dark:bg-gray-700/80 text-gray-700 dark:text-gray-300 hover:bg-sky-100 dark:hover:bg-gray-600'
+          "
+          [disabled]="!selectedNumbers.includes(num) && selectedNumbers.length >= selectedBetCount"
+          (click)="handleNumberClick(num)"
+        >
+          {{ num }}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <button
+        type="button"
+        class="btn-base px-6 border-2 border-gray-300 dark:border-gray-600"
+        (click)="handleClear()"
+      >
+        Limpar
+      </button>
+      <button
+        type="button"
+        class="btn-base px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="selectedNumbers.length >= selectedBetCount"
+        (click)="completeGame()"
+        title="Preenche automaticamente e aleatoriamente o total de números selecionados."
+      >
+        Completar Jogo
+      </button>
+      <button
+        type="button"
+        class="btn-base px-4 py-2 border-2 border-teal-600 text-teal-700 dark:text-teal-200 hover:bg-teal-50 dark:hover:bg-teal-900/20 font-semibold rounded-lg transition-all"
+        (click)="randomizeGame()"
+        title="Gera uma aposta aleatória com o total de números selecionados."
+      >
+        Números Aleatórios
+      </button>
+            <button
+        type="submit"
+        class="btn-base flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        [disabled]="!isValid"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-5 h-5 mr-2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        Simular Apostas
+      </button>
+    </div>
+
+    <p
+      *ngIf="selectedNumbers.length > 0 && selectedNumbers.length < selectedBetCount"
+      class="text-sm text-orange-600 dark:text-orange-400"
+    >
+      Selecione {{ selectedBetCount }} números para realizar a simulação.
+    </p>
+
+  </form>
+</div>

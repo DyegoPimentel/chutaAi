@@ -1,0 +1,308 @@
+<ng-container *ngIf="!isLoading(); else loadingState">
+    <div class="space-y-6 pb-32 sm:pb-24">
+      <div class="flex items-center">
+        <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Resultados da Simulacao</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="relative overflow-hidden bg-gradient-to-br from-teal-500 to-teal-600 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-teal-400/30">
+          <div class="relative z-10 flex h-full flex-col justify-between">
+            <div>
+              <p class="text-white/90 text-sm font-medium mb-2">Total de Vitórias</p>
+              <p class="text-white text-5xl font-bold mb-1">{{ totalWins }}</p>
+            </div>
+            <p class="text-white/70 text-sm">Taxa de acerto: {{ formatPercentage(hitRate) }}</p>
+          </div>
+          <mat-icon
+            class="big-number-watermark pointer-events-none absolute -bottom-6 -right-4"
+            aria-hidden="true"
+          >
+            emoji_events
+          </mat-icon>
+        </div>
+
+        <div class="relative overflow-hidden bg-gradient-to-br from-cyan-500 to-cyan-600 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-cyan-400/30">
+          <div class="relative z-10 flex h-full flex-col justify-between">
+            <div>
+              <p class="text-white/90 text-sm font-medium mb-2">Prêmios</p>
+              <p class="text-white text-4xl font-bold mb-1">{{ formatCurrencyValue(totalPrize) }}</p>
+            </div>
+            <p class="text-white/70 text-sm">Retorno (ROI): {{ formatPercentage(roi) }}</p>
+          </div>
+          <mat-icon
+            class="big-number-watermark pointer-events-none absolute -bottom-6 -right-4"
+            aria-hidden="true"
+          >
+            paid
+          </mat-icon>
+        </div>
+
+        <div class="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-orange-400/30">
+          <div class="relative z-10">
+            <p class="text-white/90 text-sm font-medium mb-2">Total Gasto</p>
+            <p class="text-white text-4xl font-bold mb-1">{{ formatCurrencyValue(totalSpent) }}</p>
+          </div>
+          <mat-icon
+            class="big-number-watermark pointer-events-none absolute -bottom-6 -right-4"
+            aria-hidden="true"
+          >
+            payments
+          </mat-icon>
+        </div>
+
+        <div class="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-emerald-400/30">
+          <div class="relative z-10">
+            <p class="text-white/90 text-sm font-medium mb-2">Total de Apostas</p>
+            <p class="text-white text-5xl font-bold mb-1">{{ results.length }}</p>
+          </div>
+          <mat-icon
+            class="big-number-watermark pointer-events-none absolute -bottom-6 -right-4"
+            aria-hidden="true"
+          >
+            casino
+          </mat-icon>
+        </div>
+      </div>
+
+      <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Números Mais Acertados</h3>
+        <div class="grid grid-cols-5 md:grid-cols-10 gap-3">
+          <div
+            *ngFor="let entry of topNumbers"
+            class="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl p-3 text-center shadow-lg"
+          >
+            <div class="text-white text-2xl font-bold">{{ entry.num }}</div>
+            <div class="text-white/80 text-xs mt-1">{{ entry.freq }}x</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl overflow-hidden">
+        <div class="p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+          <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Histórico de Apostas</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table mat-table [dataSource]="dataSource" class="w-full" matSort (matSortChange)="handleSort($event)">
+            <ng-container matColumnDef="drawNumber">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                mat-sort-header
+                class="!px-6 !py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300"
+              >
+                Concurso
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let result"
+                class="!px-6 !py-4 text-sm font-medium text-gray-900 dark:text-gray-100"
+              >
+                {{ result.draw.drawNumber }}
+              </td>
+            </ng-container>
+
+          <ng-container matColumnDef="drawDate">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="!px-6 !py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
+              Data
+            </th>
+            <td mat-cell *matCellDef="let result" class="!px-6 !py-4 text-sm text-gray-700 dark:text-gray-300">
+              {{ result.draw.drawDate }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="drawnNumbers">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!px-6 !py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
+              Números Sorteados
+            </th>
+            <td mat-cell *matCellDef="let result" class="!px-6 !py-4">
+              <div class="flex flex-wrap gap-1">
+                <span
+                  *ngFor="let num of result.draw.drawnNumbers"
+                  class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold"
+                  [ngClass]="
+                    result.matchedNumbers.includes(num)
+                      ? 'bg-gradient-to-br from-teal-500 to-cyan-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                  "
+                >
+                  {{ num }}
+                </span>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hits">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="!px-6 !py-4 !text-center text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
+              Acertos
+            </th>
+            <td mat-cell *matCellDef="let result" class="!px-6 !py-4 !text-center">
+              <span
+                class="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300"
+              >
+                {{ result.matches }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="!px-6 !py-4 !text-center text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
+              Status
+            </th>
+            <td mat-cell *matCellDef="let result" class="!px-6 !py-4 !text-center">
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="
+                  result.status === 'winner'
+                    ? 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                "
+              >
+                {{ getStatusLabel(result.status) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="prize">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="!px-6 !py-4 !text-right text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
+              Prêmio
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let result"
+              class="!px-6 !py-4 !text-right text-sm font-semibold text-gray-900 dark:text-gray-100"
+            >
+              {{ result.prize > 0 ? formatCurrency(result.prize) : '-' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="details">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!px-6 !py-4 !text-center text-sm font-semibold text-gray-700 dark:text-gray-300"
+            >
+              Detalhes
+            </th>
+            <td mat-cell *matCellDef="let result" class="!px-6 !py-4 !text-center">
+              <button
+                type="button"
+                matTooltip="Ver detalhes da aposta"
+                class="inline-flex items-center justify-center rounded-full p-2 text-teal-700 hover:bg-teal-50/70 transition dark:text-teal-300 dark:hover:bg-teal-900/30 cursor-pointer"
+                aria-label="Ver detalhes da aposta"
+                (click)="openDetails(result)"
+              >
+                <mat-icon>info_outline</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100/80 dark:bg-gray-900/80"></tr>
+            <tr
+              mat-row
+              *matRowDef="let result; let idx = index; columns: displayedColumns"
+              class="border-t border-gray-200/50 dark:border-gray-700/50"
+              [ngClass]="
+                result.status === 'winner'
+                  ? 'bg-teal-50/50 dark:bg-teal-900/20'
+                  : idx % 2 === 0
+                  ? 'bg-white/40 dark:bg-gray-800/40'
+                  : 'bg-gray-50/40 dark:bg-gray-900/40'
+              "
+            ></tr>
+          </table>
+        </div>
+
+        <div class="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
+          <mat-paginator
+            class="w-full"
+            [length]="results.length"
+            [pageSize]="itemsPerPage"
+            [pageIndex]="currentPage - 1"
+            [pageSizeOptions]="[5, 10, 25, 100]"
+            [hidePageSize]="false"
+            [showFirstLastButtons]="true"
+            (page)="handlePage($event)"
+          ></mat-paginator>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="fixed bottom-0 right-0 left-[var(--sidebar-offset)] z-30 border-t border-gray-200/70 dark:border-gray-700/70 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-xl"
+    >
+      <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-end sm:px-8">
+        <button
+          type="button"
+          class="btn-base w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white font-semibold rounded-lg shadow-lg transition-all"
+          (click)="startNewSimulation()"
+        >
+          Nova Simulacao
+        </button>
+        <button
+          type="button"
+          class="btn-base flex w-full items-center justify-center gap-2 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition-all sm:w-auto"
+          [disabled]="favorited"
+          [ngClass]="
+            favorited
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'
+          "
+          (click)="handleAddFavorite()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-5 h-5"
+            [ngClass]="favorited ? 'fill-white' : ''"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+          {{ favorited ? 'Já nos Favoritos' : 'Adicionar aos Favoritos' }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loadingState>
+    <div class="flex min-h-[60vh] items-center justify-center">
+      <mat-progress-spinner
+        class="lotofacil-loading-spinner"
+        [diameter]="72"
+        [strokeWidth]="6"
+        mode="indeterminate"
+        aria-label="Carregando"
+      ></mat-progress-spinner>
+    </div>
+  </ng-template>

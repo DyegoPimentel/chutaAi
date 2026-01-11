@@ -1,0 +1,15 @@
+<div class="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 dark:from-gray-900 dark:via-teal-900/10 dark:to-gray-900 transition-colors duration-300">
+  <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
+  <app-sidebar [isOpen]="isSidebarOpen"></app-sidebar>
+
+  <main
+    class="pt-20 transition-all duration-300 p-6"
+    [class.ml-64]="isSidebarOpen"
+    [class.ml-0]="!isSidebarOpen"
+    [style.--sidebar-offset]="isSidebarOpen ? '16rem' : '0rem'"
+  >
+    <div class="max-w-7xl mx-auto">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

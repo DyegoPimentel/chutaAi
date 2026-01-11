@@ -1,0 +1,40 @@
+table[mat-table] {
+  display: table;
+  width: 100%;
+}
+
+tr[mat-header-row],
+tr[mat-row] {
+  border-bottom-style: none;
+  border-bottom-width: 0;
+  display: table-row;
+  height: auto;
+  min-height: 0;
+}
+
+th[mat-header-cell],
+td[mat-cell] {
+  align-items: initial;
+  border-bottom-style: none;
+  border-bottom-width: 0;
+  display: table-cell;
+  flex: none;
+  min-height: 0;
+  overflow: visible;
+  word-wrap: normal;
+}
+
+.big-number-watermark {
+  color: rgb(255 255 255 / 0.1);
+  display: block;
+  font-size: 140px;
+  height: 140px;
+  line-height: 1;
+  transform: rotate(15deg);
+  width: 140px;
+}
+
+.lotofacil-loading-spinner {
+  --mat-progress-spinner-active-indicator-color: rgb(20 184 166);
+  --mat-sys-primary: rgb(20 184 166);
+}
