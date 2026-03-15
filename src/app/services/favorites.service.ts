@@ -1,14 +1,20 @@
 import { Injectable, effect, signal } from '@angular/core';
+import { LotteryType, normalizeLotteryType } from '../interfaces/global';
 
 export interface FavoriteBet {
   id: string;
+  lotteryType: LotteryType;
   numbers: number[];
   createdAt: string;
   totalWins?: number;
   totalDraws?: number;
+  roi?: number;
 }
 
-type LegacyFavoriteBet = FavoriteBet & { totalSorteios?: number };
+type StoredFavoriteBet = Omit<FavoriteBet, 'lotteryType'> & {
+  lotteryType?: string;
+  betType?: string;
+};
 
 @Injectable({
   providedIn: 'root'
@@ -26,9 +32,14 @@ export class FavoritesService {
     });
   }
 
-  addFavorite(numbers: number[], stats?: { totalWins?: number; totalDraws?: number }) {
+  addFavorite(
+    numbers: number[],
+    lotteryType: LotteryType,
+    stats?: { totalWins?: number; totalDraws?: number; roi?: number }
+  ) {
     const newFavorite: FavoriteBet = {
       id: Date.now().toString(),
+      lotteryType: normalizeLotteryType(lotteryType),
       numbers,
       createdAt: new Date().toISOString(),
       ...(stats ?? {})
@@ -40,9 +51,10 @@ export class FavoritesService {
     this.favoritesSignal.update((prev) => prev.filter((fav) => fav.id !== id));
   }
 
-  isFavorite(numbers: number[]): boolean {
+  isFavorite(numbers: number[], lotteryType?: LotteryType): boolean {
     return this.favoritesSignal().some(
       (fav) =>
+        (!lotteryType || fav.lotteryType === lotteryType) &&
         fav.numbers.length === numbers.length &&
         fav.numbers.every((num) => numbers.includes(num))
     );
@@ -78,14 +90,16 @@ export class FavoritesService {
 
   private parseFavorites(raw: string): FavoriteBet[] {
     try {
-      const parsed = JSON.parse(raw) as LegacyFavoriteBet[];
+      const parsed = JSON.parse(raw) as StoredFavoriteBet[];
       return parsed.map((favorite) => {
-        const legacyTotalDraws = favorite.totalSorteios;
-        if (favorite.totalDraws === undefined && legacyTotalDraws !== undefined) {
-          return { ...favorite, totalDraws: legacyTotalDraws };
-        }
+        const legacyTotalDrawsValue = (favorite as Record<string, unknown>)['totalSorteios'];
+        const legacyTotalDraws =
+          typeof legacyTotalDrawsValue === 'number' ? legacyTotalDrawsValue : undefined;
+        const { betType, lotteryType: storedLotteryType, ...rest } = favorite;
+        const lotteryType = normalizeLotteryType(storedLotteryType ?? betType);
+        const totalDraws = favorite.totalDraws ?? legacyTotalDraws;
 
-        return favorite;
+        return { ...rest, lotteryType, totalDraws };
       });
     } catch {
       return [];

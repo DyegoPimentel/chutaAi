@@ -10,7 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LotofacilDraw } from '../../data/lotofacil-data';
+import { LotofacilDraw } from '../../interfaces/lotofacil';
 import { FavoritesService } from '../../services/favorites.service';
 import { LotteriesApiService, LotteryResult, PrizeTier } from '../../services/loterias-api.service';
 import { SimulatorStateService } from '../../services/simulator-state.service';
@@ -175,16 +175,17 @@ export class LotofacilResultsComponent {
   }
 
   get favorited(): boolean {
-    return this.favoritesService.isFavorite(this.userNumbers);
+    return this.favoritesService.isFavorite(this.userNumbers, 'lotofacil');
   }
 
   readonly isLoading = computed(() => !this.drawsLoaded());
 
   handleAddFavorite() {
     if (!this.favorited) {
-      this.favoritesService.addFavorite(this.userNumbers, {
+      this.favoritesService.addFavorite(this.userNumbers, 'lotofacil', {
         totalWins: this.totalWins,
-        totalDraws: this.results.length
+        totalDraws: this.results.length,
+        roi: this.roi
       });
       this.showFavoriteSnack('Aposta adicionada aos favoritos');
     }
